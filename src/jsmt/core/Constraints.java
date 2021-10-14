@@ -10,8 +10,8 @@ public class Constraints {
 		return new Conjunction(clauses);
 	}
 
-	public static Constraint lessThanOrEqual(int var) {
-		return new LinearLowerBound(new int[] { var }, new int[] { 1 });
+	public static Constraint atleast(Constraint.Variable var) {
+		return new LinearLowerBound(new int[] { var.getIndex() }, new int[] { 1 });
 	}
 
 	public static Constraint between(int lb, int ub) {

@@ -1,10 +1,8 @@
 import java.util.Arrays;
+import java.util.Iterator;
 
-import jsmt.constraints.Conjunction;
-import jsmt.constraints.LinearLowerBound;
-import jsmt.constraints.StaticRange;
 import jsmt.core.Constraint;
-import jsmt.core.Constraints;
+import static jsmt.core.Constraints.*;
 
 public class Main {
 
@@ -29,20 +27,12 @@ public class Main {
 
 
 	public static void main(String[] args) {
-		// x <= y
-		// LinearInequality ieq = new LinearInequality(true, new int[] { 0, 1 }, new int[] { -1, 1 });
-		Constraint[] vars = {
-			Constraints.between(0,1),
-			Constraints.and(Constraints.between(-1, 1),Constraints.lessThanOrEqual(0))
-		};
+		Constraint.Set<Point> constraints = new Constraint.Set<>(Point::project);
+		Constraint.Variable x = constraints.allocate(between(-1, 2));
+		Constraint.Variable y = constraints.allocate(between(-1, 2), atleast(x));
 		//
-		Constraint.Set<Point> set = new Constraint.Set<>(Point::project, vars);
-		//
-		while(set.hasNext()) {
-			System.out.println("SAT: " + set.next());
+		for(Point p : constraints) {
+			System.out.println(p);
 		}
-		//
-//		System.out.println("POLY: " + new Polynomial(new Polynomial.Term(1, 0), new Polynomial.Term(2, 1))
-//				.toString(new String[] { "x", "y" }));
 	}
 }

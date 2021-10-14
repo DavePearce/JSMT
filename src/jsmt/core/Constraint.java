@@ -1,7 +1,11 @@
 package jsmt.core;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.function.Function;
+
+import jsmt.constraints.Conjunction;
+import jsmt.constraints.LinearLowerBound;
 
 /**
  * Represents a constraint (or set of constraints) applied to an individual
@@ -39,6 +43,62 @@ public abstract class Constraint {
 	public abstract int pivot();
 
 	/**
+	 * Represents an allocated constraint variable.
+	 *
+	 * @author David J. Pearce
+	 *
+	 */
+	public static class Variable {
+		private final int index;
+
+		Variable(int index) {
+			this.index = index;
+		}
+
+		public int getIndex() {
+			return index;
+		}
+
+		public Constraint below() {
+			return new LinearLowerBound(new int[] { index }, new int[] { 1 });
+		}
+	}
+
+	/**
+	 * Represents a constrained set of items.
+	 *
+	 * @author David J. Pearce
+	 *
+	 * @param <T>
+	 */
+	public static class Set<T> implements Iterable<T> {
+		private final ArrayList<Constraint> constraints = new ArrayList<>();
+		private final Function<int[], T> projection;
+
+		public Set(Function<int[], T> projection) {
+			this.projection = projection;
+		}
+
+		public Variable allocate(Constraint constraint) {
+			int n = constraints.size();
+			constraints.add(constraint);
+			return new Variable(n);
+		}
+
+		public Variable allocate(Constraint... constraints) {
+			int n = this.constraints.size();
+			this.constraints.add(new Conjunction(constraints));
+			return new Variable(n);
+		}
+
+		@Override
+		public Iterator<T> iterator() {
+			Constraint[] array = constraints.toArray(new Constraint[constraints.size()]);
+			return new InternalIterator<>(projection, array);
+		}
+	}
+
+	/**
 	 * Represents a set of constraints over one or more variables. This provides the
 	 * mechanism for efficiently iterating solutions to the constraints.
 	 *
@@ -46,7 +106,7 @@ public abstract class Constraint {
 	 *
 	 * @param <T>
 	 */
-    public static class Set<T> implements Iterator<T> {
+    private static class InternalIterator<T> implements Iterator<T> {
     	/**
     	 * A simple project which takes a matching solution and converts it into some
     	 * desirable object.
@@ -77,7 +137,7 @@ public abstract class Constraint {
 		 * @param proj
 		 * @param constraints
 		 */
-    	public Set(Function<int[],T> proj, Constraint... constraints) {
+    	public InternalIterator(Function<int[],T> proj, Constraint... constraints) {
 			final int n = constraints.length;
 			// Sanity check constraints
 			for (int i = 0; i != n; ++i) {
