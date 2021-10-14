@@ -10,7 +10,7 @@ public class Constraints {
 		return new Conjunction(clauses);
 	}
 
-	public static Constraint lteq(int var) {
+	public static Constraint lessThanOrEqual(int var) {
 		return new LinearLowerBound(new int[] { var }, new int[] { 1 });
 	}
 

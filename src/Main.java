@@ -33,7 +33,7 @@ public class Main {
 		// LinearInequality ieq = new LinearInequality(true, new int[] { 0, 1 }, new int[] { -1, 1 });
 		Constraint[] vars = {
 			Constraints.between(0,1),
-			Constraints.and(Constraints.between(-1, 1),Constraints.lteq(0))
+			Constraints.and(Constraints.between(-1, 1),Constraints.lessThanOrEqual(0))
 		};
 		//
 		Constraint.Set<Point> set = new Constraint.Set<>(Point::project, vars);
