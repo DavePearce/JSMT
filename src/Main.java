@@ -1,7 +1,9 @@
 import java.util.Arrays;
 
+import jsmt.core.Conjunction;
 import jsmt.core.Constraint;
-import jsmt.core.LinearInequality;
+import jsmt.core.LinearLowerBound;
+import jsmt.core.StaticRange;
 
 public class Main {
 
@@ -27,9 +29,13 @@ public class Main {
 
 	public static void main(String[] args) {
 		// x <= y
-		LinearInequality ieq = new LinearInequality(true, new int[] { 0, 1 }, new int[] { -1, 1 });
+		// LinearInequality ieq = new LinearInequality(true, new int[] { 0, 1 }, new int[] { -1, 1 });
+		Constraint[] vars = {
+			new StaticRange(0,1), // 0 <= x <= 1
+			new Conjunction(new StaticRange(0, 1), new LinearLowerBound(new int[] { 0 }, new int[] { 1 }))
+		};
 		//
-		Constraint.Set<Point> set = new Constraint.Set<>(Point::project, 2, ieq);
+		Constraint.Set<Point> set = new Constraint.Set<>(Point::project, vars);
 		//
 		while(set.hasNext()) {
 			System.out.println("SAT: " + set.next());
