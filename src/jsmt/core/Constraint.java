@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.function.Function;
 
-import jsmt.constraints.Conjunction;
-import jsmt.constraints.LinearLowerBound;
-
 /**
  * Represents a constraint (or set of constraints) applied to an individual
  * variable.
@@ -58,10 +55,6 @@ public abstract class Constraint {
 		public int getIndex() {
 			return index;
 		}
-
-		public Constraint below() {
-			return new LinearLowerBound(new int[] { index }, new int[] { 1 });
-		}
 	}
 
 	/**
@@ -79,15 +72,17 @@ public abstract class Constraint {
 			this.projection = projection;
 		}
 
-		public Variable allocate(Constraint constraint) {
+		/**
+		 * Add a new variable to the constraint set. This returns a handle through which
+		 * we can interact with the allocated variable in creating subsequent downstream
+		 * constraints.
+		 *
+		 * @param constraint
+		 * @return
+		 */
+		public Variable add(Constraint constraint) {
 			int n = constraints.size();
 			constraints.add(constraint);
-			return new Variable(n);
-		}
-
-		public Variable allocate(Constraint... constraints) {
-			int n = this.constraints.size();
-			this.constraints.add(new Conjunction(constraints));
 			return new Variable(n);
 		}
 

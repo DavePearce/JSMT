@@ -28,8 +28,8 @@ public class Main {
 
 	public static void main(String[] args) {
 		Constraint.Set<Point> constraints = new Constraint.Set<>(Point::project);
-		Constraint.Variable x = constraints.allocate(between(-1, 2));
-		Constraint.Variable y = constraints.allocate(between(-1, 2), atleast(x));
+		Constraint.Variable x = constraints.add(U8);
+		Constraint.Variable y = constraints.add(and(U8, atleast(x)));
 		//
 		for(Point p : constraints) {
 			System.out.println(p);
