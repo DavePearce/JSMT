@@ -1,4 +1,6 @@
-package jsmt.core;
+package jsmt.constraints;
+
+import jsmt.core.Constraint;
 
 public class Conjunction extends Constraint {
 	private final Constraint[] clauses;
@@ -25,5 +27,15 @@ public class Conjunction extends Constraint {
 			m = Math.min(m, n);
 		}
 		return m;
+	}
+
+	@Override
+	public int pivot() {
+		int p = clauses[0].pivot();
+		for (int i = 1; i < clauses.length; ++i) {
+			int n = clauses[i].pivot();
+			p = Math.max(p, n);
+		}
+		return p;
 	}
 }

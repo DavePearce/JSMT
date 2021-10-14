@@ -3,6 +3,13 @@ package jsmt.core;
 import java.util.Iterator;
 import java.util.function.Function;
 
+/**
+ * Represents a constraint (or set of constraints) applied to an individual
+ * variable.
+ *
+ * @author David J. Pearce
+ *
+ */
 public abstract class Constraint {
 
 	/**
@@ -23,6 +30,22 @@ public abstract class Constraint {
 	 */
 	public abstract int upperBound(int[] values);
 
+	/**
+	 * Represents the largest variable used in this constraint (by index), or
+	 * <code>-1</code> if no variables are used.
+	 *
+	 * @return
+	 */
+	public abstract int pivot();
+
+	/**
+	 * Represents a set of constraints over one or more variables. This provides the
+	 * mechanism for efficiently iterating solutions to the constraints.
+	 *
+	 * @author David J. Pearce
+	 *
+	 * @param <T>
+	 */
     public static class Set<T> implements Iterator<T> {
     	/**
     	 * A simple project which takes a matching solution and converts it into some
@@ -46,8 +69,24 @@ public abstract class Constraint {
     	 */
     	private final Constraint[] constraints;
 
+    	/**
+		 * Construct a constraint system for a given number of variables, where each
+		 * constraint corresponds to a given variable. A projection function is provided
+		 * for extracting solutions.
+		 *
+		 * @param proj
+		 * @param constraints
+		 */
     	public Set(Function<int[],T> proj, Constraint... constraints) {
-    		final int n = constraints.length;
+			final int n = constraints.length;
+			// Sanity check constraints
+			for (int i = 0; i != n; ++i) {
+				int ith = constraints[i].pivot();
+				if (ith >= i) {
+					throw new IllegalArgumentException("constraint " + i + " depends on variable " + ith);
+				}
+			}
+    		//
 			this.projection = proj;
     		this.values = new int[n];
     		this.limits = new int[n];
@@ -75,8 +114,6 @@ public abstract class Constraint {
 
 		private static int[] nextSolution(Constraint[] constraints, int[] values, int[] limits) {
 			int n = values.length - 1;
-			//
-			// FIXME: should we back up the c here?
 			//
 			while (n >= 0) {
 				if (values[n] >= limits[n]) {

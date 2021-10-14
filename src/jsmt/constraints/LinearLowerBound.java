@@ -1,4 +1,6 @@
-package jsmt.core;
+package jsmt.constraints;
+
+import jsmt.core.Constraint;
 
 /**
  * For a given variable <code>v</code>, this encodes a linear inequality of the
@@ -32,5 +34,14 @@ public class LinearLowerBound extends Constraint {
 	@Override
 	public int upperBound(int[] values) {
 		return Integer.MAX_VALUE;
+	}
+
+	@Override
+	public int pivot() {
+		int p = vars[0];
+		for (int i = 1; i != vars.length; ++i) {
+			p = Math.max(p, vars[i]);
+		}
+		return p;
 	}
 }

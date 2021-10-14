@@ -1,9 +1,10 @@
 import java.util.Arrays;
 
-import jsmt.core.Conjunction;
+import jsmt.constraints.Conjunction;
+import jsmt.constraints.LinearLowerBound;
+import jsmt.constraints.StaticRange;
 import jsmt.core.Constraint;
-import jsmt.core.LinearLowerBound;
-import jsmt.core.StaticRange;
+import jsmt.core.Constraints;
 
 public class Main {
 
@@ -31,8 +32,8 @@ public class Main {
 		// x <= y
 		// LinearInequality ieq = new LinearInequality(true, new int[] { 0, 1 }, new int[] { -1, 1 });
 		Constraint[] vars = {
-			new StaticRange(0,1), // 0 <= x <= 1
-			new Conjunction(new StaticRange(0, 1), new LinearLowerBound(new int[] { 0 }, new int[] { 1 }))
+			Constraints.between(0,1),
+			Constraints.and(Constraints.between(-1, 1),Constraints.lteq(0))
 		};
 		//
 		Constraint.Set<Point> set = new Constraint.Set<>(Point::project, vars);

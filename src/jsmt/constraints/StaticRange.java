@@ -1,4 +1,6 @@
-package jsmt.core;
+package jsmt.constraints;
+
+import jsmt.core.Constraint;
 
 public class StaticRange extends Constraint {
 	public static final StaticRange UNLIMITED = new StaticRange(Integer.MIN_VALUE + 1, Integer.MAX_VALUE);
@@ -19,5 +21,10 @@ public class StaticRange extends Constraint {
 	@Override
 	public int upperBound(int[] vars) {
 		return upperBound;
+	}
+
+	@Override
+	public int pivot() {
+		return -1;
 	}
 }
