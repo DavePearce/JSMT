@@ -43,6 +43,13 @@ public class Constraints {
 		return new StaticRange(lb,ub);
 	}
 
+	/**
+	 * Provides a reasonably straightforward implementation for combining
+	 * constraints such that they all must hold..
+	 * 
+	 * @author David J. Pearce
+	 *
+	 */
 	private static class Conjunction extends Constraint {
 		private final Constraint[] clauses;
 
