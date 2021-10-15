@@ -2,6 +2,12 @@ package jsmt.core;
 
 public class Constraints {
 	/**
+	 * A constant representing the value <code>1</code>. This is normally used to
+	 * constraint zeroth indexed variable.
+	 */
+	public static Constraint ONE = between(1,1);
+
+	/**
 	 * A constraint representing the an unsigned byte type.
 	 */
 	public static Constraint U8 = between(0,255);
@@ -21,14 +27,56 @@ public class Constraints {
 	}
 
 	/**
-	 * Create a constraint representing a value which is _at least_ the value of a
-	 * given variable (i.e. greater-than-or-equal to).
+	 * Create a constraint representing a value which is greater than or equal to a
+	 * given variable.
 	 *
-	 * @param var
+	 * @param variable
 	 * @return
 	 */
-	public static Constraint atleast(Constraint.Variable var) {
-		return new LinearLowerBound(new int[] { var.getIndex() }, new int[] { 1 });
+	public static Constraint greaterOrEqual(Variable variable) {
+		return new RelaxedLowerBound(variable);
+	}
+
+	/**
+	 * Create a constraint representing a value which is greater than a given
+	 * variable.
+	 *
+	 * @param variable
+	 * @return
+	 */
+	public static Constraint greaterThan(Variable variable) {
+		return new StrictLowerBound(variable);
+	}
+
+	/**
+	 * Create a constraint representing a value which is less than or equal to a
+	 * given variable.
+	 *
+	 * @param variable
+	 * @return
+	 */
+	public static Constraint lessOrEqual(Variable variable) {
+		return new RelaxedUpperBound(variable);
+	}
+
+	/**
+	 * Create a constraint representing a value which is less than a given variable.
+	 *
+	 * @param variable
+	 * @return
+	 */
+	public static Constraint lessThan(Variable variable) {
+		return new StrictUpperBound(variable);
+	}
+
+	/**
+	 * Create a constraint requiring a variable to equal another.
+	 *
+	 * @param variable
+	 * @return
+	 */
+	public static Constraint equal(Variable variable) {
+		return new Congruence(variable);
 	}
 
 	/**
@@ -46,7 +94,7 @@ public class Constraints {
 	/**
 	 * Provides a reasonably straightforward implementation for combining
 	 * constraints such that they all must hold..
-	 * 
+	 *
 	 * @author David J. Pearce
 	 *
 	 */
@@ -76,16 +124,6 @@ public class Constraints {
 			}
 			return m;
 		}
-
-		@Override
-		public int pivot() {
-			int p = clauses[0].pivot();
-			for (int i = 1; i < clauses.length; ++i) {
-				int n = clauses[i].pivot();
-				p = Math.max(p, n);
-			}
-			return p;
-		}
 	}
 
 	/**
@@ -114,54 +152,95 @@ public class Constraints {
 		public int upperBound(int[] vars) {
 			return upperBound;
 		}
-
-		@Override
-		public int pivot() {
-			return -1;
-		}
 	}
 
-	/**
-	 * For a given variable <code>v</code>, this encodes a linear inequality of the
-	 * following form:
-	 *
-	 * <pre>
-	 * (w1*c1) + ... + (wn*cn) <= v
-	 * </pre>
-	 *
-	 * @author David J. Pearce
-	 *
-	 */
-	private static class LinearLowerBound extends Constraint {
-	    private final int[] vars;
-	    private final int[] coeffs;
+	private static class Congruence extends Constraint {
+	    private final Variable variable;
 
-	    public LinearLowerBound(int[] vars, int[] coeffs) {
-	        this.vars = vars;
-	        this.coeffs = coeffs;
+	    public Congruence(Variable variable) {
+	        this.variable = variable;
 	    }
 
 	    @Override
 		public int lowerBound(int[] values) {
-			int v = 0;
-	        for(int i=0;i<vars.length;++i) {
-	            v = v + (coeffs[i] * values[vars[i]]);
-	        }
-	        return v;
+			return variable.evaluate(values);
+		}
+
+		@Override
+		public int upperBound(int[] values) {
+			return variable.evaluate(values);
+		}
+	}
+
+	private static class RelaxedLowerBound extends Constraint {
+	    private final Variable variable;
+
+	    public RelaxedLowerBound(Variable variable) {
+	        this.variable = variable;
+	    }
+
+	    @Override
+		public int lowerBound(int[] values) {
+			return variable.evaluate(values);
 		}
 
 		@Override
 		public int upperBound(int[] values) {
 			return Integer.MAX_VALUE;
 		}
+	}
+
+	private static class StrictLowerBound extends Constraint {
+	    private final Variable variable;
+
+	    public StrictLowerBound(Variable variable) {
+	        this.variable = variable;
+	    }
+
+	    @Override
+		public int lowerBound(int[] values) {
+			return variable.evaluate(values) + 1;
+		}
 
 		@Override
-		public int pivot() {
-			int p = vars[0];
-			for (int i = 1; i != vars.length; ++i) {
-				p = Math.max(p, vars[i]);
-			}
-			return p;
+		public int upperBound(int[] values) {
+			return Integer.MAX_VALUE;
+		}
+	}
+
+	private static class RelaxedUpperBound extends Constraint {
+	    private final Variable variable;
+
+	    public RelaxedUpperBound(Variable variable) {
+	        this.variable = variable;
+	    }
+
+	    @Override
+		public int lowerBound(int[] values) {
+			return Integer.MIN_VALUE+1;
+		}
+
+		@Override
+		public int upperBound(int[] values) {
+			return variable.evaluate(values);
+		}
+	}
+
+	private static class StrictUpperBound extends Constraint {
+		private final Variable variable;
+
+		public StrictUpperBound(Variable variable) {
+			this.variable = variable;
+		}
+
+		@Override
+		public int lowerBound(int[] values) {
+			return Integer.MIN_VALUE + 1;
+		}
+
+		@Override
+		public int upperBound(int[] values) {
+			return variable.evaluate(values) + 1;
 		}
 	}
 }

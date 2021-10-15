@@ -2,6 +2,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import jsmt.core.Constraint;
+import jsmt.core.Variable;
+
 import static jsmt.core.Constraints.*;
 
 public class Main {
@@ -27,14 +29,15 @@ public class Main {
 
 
 	public static void main(String[] args) {
-		Constraint.Set<Point> constraints = new Constraint.Set<>(Point::project);
+		Constraint.Set<String> constraints = new Constraint.Set<>(Arrays::toString);
 //		Constraint.Variable x = constraints.add(U8);
 //		Constraint.Variable y = constraints.add(and(U8, atleast(x)));
-		Constraint.Variable x = constraints.declare(between(0,5));
-		Constraint.Variable y = constraints.declare(and(between(0, 5), atleast(x)));
+		Variable x = constraints.declare(between(0, 5));
+		Variable y = constraints.declare(and(between(0, 5)));
+		Variable z = constraints.declare(and(between(0, 5), equal(x.add(y))));
 		//
-		for(Point p : constraints) {
-			System.out.println(p);
+		for(String s : constraints) {
+			System.out.println(s);
 		}
 	}
 }

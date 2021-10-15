@@ -1,6 +1,7 @@
 package jsmt.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Function;
 
@@ -32,32 +33,6 @@ public abstract class Constraint {
 	public abstract int upperBound(int[] values);
 
 	/**
-	 * Represents the largest variable used in this constraint (by index), or
-	 * <code>-1</code> if no variables are used.
-	 *
-	 * @return
-	 */
-	public abstract int pivot();
-
-	/**
-	 * Represents an allocated constraint variable.
-	 *
-	 * @author David J. Pearce
-	 *
-	 */
-	public static class Variable {
-		private final int index;
-
-		Variable(int index) {
-			this.index = index;
-		}
-
-		public int getIndex() {
-			return index;
-		}
-	}
-
-	/**
 	 * Represents a constrained set of items.
 	 *
 	 * @author David J. Pearce
@@ -83,7 +58,7 @@ public abstract class Constraint {
 		public Variable declare(Constraint constraint) {
 			int n = constraints.size();
 			constraints.add(constraint);
-			return new Variable(n);
+			return new Variable(1, n);
 		}
 
 		@Override
@@ -134,13 +109,6 @@ public abstract class Constraint {
 		 */
     	public InternalIterator(Function<int[],T> proj, Constraint... constraints) {
 			final int n = constraints.length;
-			// Sanity check constraints
-			for (int i = 0; i != n; ++i) {
-				int ith = constraints[i].pivot();
-				if (ith >= i) {
-					throw new IllegalArgumentException("constraint " + i + " depends on variable " + ith);
-				}
-			}
     		//
 			this.projection = proj;
     		this.values = new int[n];
