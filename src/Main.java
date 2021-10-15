@@ -30,7 +30,8 @@ public class Main {
 
 	public static void main(String[] args) {
 		Constraint.Set<String> constraints = new Constraint.Set<>(Arrays::toString);
-		Variable x = constraints.declare(or(between(0, 1),between(4,5)));		
+		Variable x = constraints.declare(between(0,5));
+		Variable y = constraints.declare(and(between(-2, 2), or(lessThan(x), greaterThan(x))));
 		//
 		for(String s : constraints) {
 			System.out.println(s);

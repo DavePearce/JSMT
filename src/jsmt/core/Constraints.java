@@ -43,9 +43,9 @@ public class Constraints {
 	 * @param variable
 	 * @return
 	 */
-	public static Constraint greaterOrEqual(Variable variable) {
-		return new RelaxedLowerBound(variable);
-	}
+//	public static Constraint greaterOrEqual(Variable variable) {
+//		return new RelaxedLowerBound(variable);
+//	}
 
 	/**
 	 * Create a constraint representing a value which is greater than a given
@@ -65,9 +65,9 @@ public class Constraints {
 	 * @param variable
 	 * @return
 	 */
-	public static Constraint lessOrEqual(Variable variable) {
-		return new RelaxedUpperBound(variable);
-	}
+//	public static Constraint lessOrEqual(Variable variable) {
+//		return new RelaxedUpperBound(variable);
+//	}
 
 	/**
 	 * Create a constraint representing a value which is less than a given variable.
@@ -102,6 +102,30 @@ public class Constraints {
 	}
 
 	/**
+	 * Create a constraint representing a value between a fixed lower and upper
+	 * bound.
+	 *
+	 * @param lb
+	 * @param ub
+	 * @return
+	 */
+	public static Constraint below(int lb) {
+		return new StaticRange(Integer.MIN_VALUE + 1, lb - 1);
+	}
+	
+	/**
+	 * Create a constraint representing a value between a fixed lower and upper
+	 * bound.
+	 *
+	 * @param lb
+	 * @param ub
+	 * @return
+	 */
+	public static Constraint above(int lb) {
+		return new StaticRange(lb + 1, Integer.MAX_VALUE);
+	}
+	
+	/**
 	 * Provides a reasonably straightforward implementation for combining
 	 * constraints such that they all must hold..
 	 *
@@ -117,20 +141,32 @@ public class Constraints {
 
 		@Override
 		public int greatestLowerBound(int value, int[] values) {
-			int m = clauses[0].greatestLowerBound(value, values);
-			for (int i = 1; i < clauses.length; ++i) {
+			int m = Integer.MAX_VALUE;
+			for (int i = 0; i < clauses.length; ++i) {
 				int n = clauses[i].greatestLowerBound(value, values);
-				m = Math.max(m, n);
-			}
+				if(n != Integer.MAX_VALUE) {
+					if(m == Integer.MAX_VALUE) {
+						m = n;
+					} else {
+						m = Math.max(m, n);
+					}
+				}
+			}			
 			return m;
 		}
 
 		@Override
 		public int leastUpperBound(int value, int[] values) {
-			int m = clauses[0].leastUpperBound(value, values);
-			for (int i = 1; i < clauses.length; ++i) {
+			int m = Integer.MIN_VALUE;
+			for (int i = 0; i < clauses.length; ++i) {
 				int n = clauses[i].leastUpperBound(value, values);
-				m = Math.min(m, n);
+				if (n != Integer.MIN_VALUE) {
+					if (m == Integer.MIN_VALUE) {
+						m = n;
+					} else {
+						m = Math.min(m, n);
+					}
+				}
 			}
 			return m;
 		}
@@ -152,20 +188,36 @@ public class Constraints {
 
 		@Override
 		public int greatestLowerBound(int value, int[] values) {
-			int m = clauses[0].greatestLowerBound(value, values);
-			for (int i = 1; i < clauses.length; ++i) {
+			int m = Integer.MAX_VALUE;
+			//
+			for (int i = 0; i < clauses.length; ++i) {
 				int n = clauses[i].greatestLowerBound(value, values);
-				m = Math.min(m, n);
+				//
+				if(n != Integer.MAX_VALUE) {
+					if(m == Integer.MAX_VALUE) {
+						m = n;
+					} else {
+						m = Math.min(m, n);
+					}
+				}
 			}
 			return m;
 		}
 
 		@Override
 		public int leastUpperBound(int value, int[] values) {
-			int m = clauses[0].leastUpperBound(value, values);
-			for (int i = 1; i < clauses.length; ++i) {
+			int m = Integer.MIN_VALUE;
+			// Hmmm, this is icky.
+			for (int i = 0; i < clauses.length; ++i) {
 				int n = clauses[i].leastUpperBound(value, values);
-				m = Math.max(m, n);
+				//
+				if (n != Integer.MIN_VALUE) {
+					if (m == Integer.MIN_VALUE) {
+						m = n;
+					} else {
+						m = Math.min(m, n);
+					}
+				}
 			}
 			return m;
 		}
@@ -190,12 +242,20 @@ public class Constraints {
 
 		@Override
 		public int greatestLowerBound(int value, int[] vars) {
-			return Math.max(lowerBound, value);
+			if (value > lowerBound) {
+				return Integer.MAX_VALUE;
+			} else {
+				return lowerBound;
+			}
 		}
 
 		@Override
 		public int leastUpperBound(int value, int[] vars) {
-			return Math.min(upperBound, value);
+			if(value > upperBound) {
+				return Integer.MIN_VALUE;
+			} else {
+				return upperBound;
+			}
 		}
 	}
 
@@ -208,32 +268,22 @@ public class Constraints {
 
 	    @Override
 		public int greatestLowerBound(int value, int[] values) {
-//			return variable.evaluate(values);
-	    	throw new IllegalArgumentException("what to do?");
+			int val = variable.evaluate(values);
+			if (value > val) {
+				return Integer.MAX_VALUE;
+			} else {
+				return val;
+			}
 		}
 
 		@Override
 		public int leastUpperBound(int value, int[] values) {
-//			return variable.evaluate(values);
-			throw new IllegalArgumentException("what to do?");
-		}
-	}
-
-	private static class RelaxedLowerBound extends Constraint {
-	    private final Variable variable;
-
-	    public RelaxedLowerBound(Variable variable) {
-	        this.variable = variable;
-	    }
-
-		@Override
-		public int greatestLowerBound(int value, int[] values) {
-			return Math.max(value, variable.evaluate(values));
-		}
-
-		@Override
-		public int leastUpperBound(int value, int[] values) {
-			return Math.min(value, Integer.MAX_VALUE);
+			int val = variable.evaluate(values);
+			if (value > val) {
+				return Integer.MIN_VALUE;
+			} else {
+				return val;
+			}
 		}
 	}
 
@@ -246,48 +296,40 @@ public class Constraints {
 
 	    @Override
 		public int greatestLowerBound(int value, int[] values) {
-			return Math.max(value, variable.evaluate(values) + 1);
+			int val = variable.evaluate(values) + 1;
+			if (value > val) {
+				return Integer.MAX_VALUE;
+			} else {
+				return val;
+			}
 		}
 
 		@Override
 		public int leastUpperBound(int value, int[] values) {
-			return Math.min(value, Integer.MAX_VALUE);
+			return Integer.MAX_VALUE;
 		}
 	}
-
-	private static class RelaxedUpperBound extends Constraint {
+	
+	private static class StrictUpperBound extends Constraint {
 	    private final Variable variable;
 
-	    public RelaxedUpperBound(Variable variable) {
+	    public StrictUpperBound(Variable variable) {
 	        this.variable = variable;
 	    }
 
 	    @Override
 		public int greatestLowerBound(int value, int[] values) {
-			return Math.max(value, Integer.MIN_VALUE + 1);
+			return Integer.MIN_VALUE + 1;			
 		}
 
 		@Override
 		public int leastUpperBound(int value, int[] values) {
-			return Math.min(value, variable.evaluate(values));
-		}
-	}
-
-	private static class StrictUpperBound extends Constraint {
-		private final Variable variable;
-
-		public StrictUpperBound(Variable variable) {
-			this.variable = variable;
-		}
-
-		@Override
-		public int greatestLowerBound(int value, int[] values) {
-			return Math.max(value, Integer.MIN_VALUE + 1);
-		}
-
-		@Override
-		public int leastUpperBound(int value, int[] values) {
-			return Math.min(value, variable.evaluate(values) + 1);
+			int val = variable.evaluate(values) - 1;
+			if (value > val) {
+				return Integer.MIN_VALUE;
+			} else {
+				return val;
+			}
 		}
 	}
 }

@@ -143,11 +143,14 @@ public abstract class Constraint {
 				int limit = limits[n];
 				// Check whether range completed
 				if (val >= limit) {
+					val = val + 1;
 					// Yes, now check for more ranges
 					val = constraints[n].greatestLowerBound(val, values);
 					limit = constraints[n].leastUpperBound(val, values);
 					//
-					if (val >= limit) {
+					// FIXME: the termination condition here sucks eggs
+					//
+					if (val > limit || (val == Integer.MAX_VALUE && limit == Integer.MAX_VALUE)) {
 						// Shift constraint pointer
 						n = n - 1;
 						continue;
@@ -181,11 +184,8 @@ public abstract class Constraint {
     		if (v == values.length) {
     			return values;
     		} else {
-				int lb = constraints[v].greatestLowerBound(Integer.MIN_VALUE + 1, values);
-				int ub = constraints[v].leastUpperBound(Integer.MAX_VALUE, values);
-				//
-				System.out.println("LB="+lb);
-				System.out.println("UB="+ub);
+				int lb = constraints[v].greatestLowerBound(Integer.MIN_VALUE, values);
+				int ub = constraints[v].leastUpperBound(Integer.MIN_VALUE, values);
     			//
     			limits[v] = ub;
     			//
