@@ -27,6 +27,16 @@ public class Constraints {
 	}
 
 	/**
+	 * Create a constraint as the logical disjunction of several constraints.
+	 *
+	 * @param clauses
+	 * @return
+	 */
+	public static Constraint or(Constraint... clauses) {
+		return new Disjunction(clauses);
+	}
+	
+	/**
 	 * Create a constraint representing a value which is greater than or equal to a
 	 * given variable.
 	 *
@@ -106,26 +116,61 @@ public class Constraints {
 		}
 
 		@Override
-		public int lowerBound(int[] values) {
-			int m = clauses[0].lowerBound(values);
+		public int greatestLowerBound(int value, int[] values) {
+			int m = clauses[0].greatestLowerBound(value, values);
 			for (int i = 1; i < clauses.length; ++i) {
-				int n = clauses[i].lowerBound(values);
+				int n = clauses[i].greatestLowerBound(value, values);
 				m = Math.max(m, n);
 			}
 			return m;
 		}
 
 		@Override
-		public int upperBound(int[] values) {
-			int m = clauses[0].upperBound(values);
+		public int leastUpperBound(int value, int[] values) {
+			int m = clauses[0].leastUpperBound(value, values);
 			for (int i = 1; i < clauses.length; ++i) {
-				int n = clauses[i].upperBound(values);
+				int n = clauses[i].leastUpperBound(value, values);
 				m = Math.min(m, n);
 			}
 			return m;
 		}
 	}
 
+	/**
+	 * Provides a reasonably straightforward implementation for combining
+	 * constraints such that at least one must hold.
+	 *
+	 * @author David J. Pearce
+	 *
+	 */
+	private static class Disjunction extends Constraint {
+		private final Constraint[] clauses;
+
+		public Disjunction(Constraint...clauses) {
+			this.clauses = clauses;
+		}
+
+		@Override
+		public int greatestLowerBound(int value, int[] values) {
+			int m = clauses[0].greatestLowerBound(value, values);
+			for (int i = 1; i < clauses.length; ++i) {
+				int n = clauses[i].greatestLowerBound(value, values);
+				m = Math.min(m, n);
+			}
+			return m;
+		}
+
+		@Override
+		public int leastUpperBound(int value, int[] values) {
+			int m = clauses[0].leastUpperBound(value, values);
+			for (int i = 1; i < clauses.length; ++i) {
+				int n = clauses[i].leastUpperBound(value, values);
+				m = Math.max(m, n);
+			}
+			return m;
+		}
+	}
+	
 	/**
 	 * Represents a very simple constraint on a variable, namely a fixed lower and
 	 * upper bound. Such a constraint normally arises from the type of the variable
@@ -144,13 +189,13 @@ public class Constraints {
 		}
 
 		@Override
-		public int lowerBound(int[] vars) {
-			return lowerBound;
+		public int greatestLowerBound(int value, int[] vars) {
+			return Math.max(lowerBound, value);
 		}
 
 		@Override
-		public int upperBound(int[] vars) {
-			return upperBound;
+		public int leastUpperBound(int value, int[] vars) {
+			return Math.min(upperBound, value);
 		}
 	}
 
@@ -162,13 +207,15 @@ public class Constraints {
 	    }
 
 	    @Override
-		public int lowerBound(int[] values) {
-			return variable.evaluate(values);
+		public int greatestLowerBound(int value, int[] values) {
+//			return variable.evaluate(values);
+	    	throw new IllegalArgumentException("what to do?");
 		}
 
 		@Override
-		public int upperBound(int[] values) {
-			return variable.evaluate(values);
+		public int leastUpperBound(int value, int[] values) {
+//			return variable.evaluate(values);
+			throw new IllegalArgumentException("what to do?");
 		}
 	}
 
@@ -179,14 +226,14 @@ public class Constraints {
 	        this.variable = variable;
 	    }
 
-	    @Override
-		public int lowerBound(int[] values) {
-			return variable.evaluate(values);
+		@Override
+		public int greatestLowerBound(int value, int[] values) {
+			return Math.max(value, variable.evaluate(values));
 		}
 
 		@Override
-		public int upperBound(int[] values) {
-			return Integer.MAX_VALUE;
+		public int leastUpperBound(int value, int[] values) {
+			return Math.min(value, Integer.MAX_VALUE);
 		}
 	}
 
@@ -198,13 +245,13 @@ public class Constraints {
 	    }
 
 	    @Override
-		public int lowerBound(int[] values) {
-			return variable.evaluate(values) + 1;
+		public int greatestLowerBound(int value, int[] values) {
+			return Math.max(value, variable.evaluate(values) + 1);
 		}
 
 		@Override
-		public int upperBound(int[] values) {
-			return Integer.MAX_VALUE;
+		public int leastUpperBound(int value, int[] values) {
+			return Math.min(value, Integer.MAX_VALUE);
 		}
 	}
 
@@ -216,13 +263,13 @@ public class Constraints {
 	    }
 
 	    @Override
-		public int lowerBound(int[] values) {
-			return Integer.MIN_VALUE+1;
+		public int greatestLowerBound(int value, int[] values) {
+			return Math.max(value, Integer.MIN_VALUE + 1);
 		}
 
 		@Override
-		public int upperBound(int[] values) {
-			return variable.evaluate(values);
+		public int leastUpperBound(int value, int[] values) {
+			return Math.min(value, variable.evaluate(values));
 		}
 	}
 
@@ -234,13 +281,13 @@ public class Constraints {
 		}
 
 		@Override
-		public int lowerBound(int[] values) {
-			return Integer.MIN_VALUE + 1;
+		public int greatestLowerBound(int value, int[] values) {
+			return Math.max(value, Integer.MIN_VALUE + 1);
 		}
 
 		@Override
-		public int upperBound(int[] values) {
-			return variable.evaluate(values) + 1;
+		public int leastUpperBound(int value, int[] values) {
+			return Math.min(value, variable.evaluate(values) + 1);
 		}
 	}
 }

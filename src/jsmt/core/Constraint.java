@@ -21,7 +21,7 @@ public abstract class Constraint {
 	 * @param values
 	 * @return
 	 */
-	public abstract int lowerBound(int[] values);
+	public abstract int greatestLowerBound(int value, int[] values);
 
 	/**
 	 * For a given variable assignment, determine an upper bound for the variable
@@ -30,7 +30,7 @@ public abstract class Constraint {
 	 * @param values
 	 * @return
 	 */
-	public abstract int upperBound(int[] values);
+	public abstract int leastUpperBound(int value, int[] values);
 
 	/**
 	 * Represents a constrained set of items.
@@ -139,15 +139,28 @@ public abstract class Constraint {
 			int n = values.length - 1;
 			//
 			while (n >= 0) {
-				if (values[n] >= limits[n]) {
-					// Shift constraint pointer
-					n = n - 1;
-				} else {
-					values[n] = values[n] + 1;
-					if (findLeastSolution(n + 1, constraints, values, limits) != null) {
-						// Found a solution
-						return values;
+				int val = values[n];
+				int limit = limits[n];
+				// Check whether range completed
+				if (val >= limit) {
+					// Yes, now check for more ranges
+					val = constraints[n].greatestLowerBound(val, values);
+					limit = constraints[n].leastUpperBound(val, values);
+					//
+					if (val >= limit) {
+						// Shift constraint pointer
+						n = n - 1;
+						continue;
+					} else {
+						values[n] = val;
+						limits[n] = limit;
 					}
+				} else {
+					values[n] = val + 1;
+				}
+				if (findLeastSolution(n + 1, constraints, values, limits) != null) {
+					// Found a solution
+					return values;
 				}
 			}
 			//
@@ -168,8 +181,11 @@ public abstract class Constraint {
     		if (v == values.length) {
     			return values;
     		} else {
-    			int lb = constraints[v].lowerBound(values);
-    			int ub = constraints[v].upperBound(values);
+				int lb = constraints[v].greatestLowerBound(Integer.MIN_VALUE + 1, values);
+				int ub = constraints[v].leastUpperBound(Integer.MAX_VALUE, values);
+				//
+				System.out.println("LB="+lb);
+				System.out.println("UB="+ub);
     			//
     			limits[v] = ub;
     			//
