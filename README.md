@@ -29,9 +29,10 @@ public class Point {
 }
 ```
 
-What we want to do is enumerate all `Point` instances for `0 <= x <=
-5` and `0 <= y <= 5`.
+Suppose we want to enumerate all `Point` instances for `0 <= x <= 5`
+and `0 <= y <= 5`.  We can do this quite easily as follows:
 
+```Java
 Constraint.Set<Point> constraints = new Constraint.Set<>(vs -> new Point(vs[0],vs[1]));
 Constraint.Variable x = constraints.add(between(0,5));
 Constraint.Variable y = constraints.add(between(0,5));
@@ -39,3 +40,12 @@ Constraint.Variable y = constraints.add(between(0,5));
 for(Point p : constraints) {
    System.out.println(p);
 }		
+```
+
+Here, I've declared `x` and `y` explicitly to help clarify what's
+going on but, in this case at least, we don't actually need them.  
+
+Essentially, what's happening above is that we are declaring two
+variables in our constraint set and enumerating them.  We've provided
+a _project_ function which takes an `int[]` array (where `length==2`
+in this case) and constructs an instance of `Point`.
