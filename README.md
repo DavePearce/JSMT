@@ -46,5 +46,17 @@ Here, I've declared `x` and `y` explicitly to help clarify what's
 going on but, in this case at least, we don't actually need them.
 Essentially, we've declared two variables in our constraint set which
 are constrained to be between `0` and `5` (inclusive).  We've also
-provided a _project_ function which takes an `int[]` array (where
+provided a _projection_ function which takes an `int[]` array (where
 `length==2` in this case) and constructs an instance of `Point`.
+
+Running the above gives the following output:
+
+```
+{x=0,y=0}
+{x=0,y=1}
+{x=0,y=2}
+{x=0,y=3}
+...
+{x=5,y=4}
+{x=5,y=5}
+```

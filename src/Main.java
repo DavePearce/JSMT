@@ -22,14 +22,16 @@ public class Main {
 
 		public static Point project(int[] vars) {
 			return new Point(vars[0],vars[1]);
-		} 
+		}
 	}
 
 
 	public static void main(String[] args) {
 		Constraint.Set<Point> constraints = new Constraint.Set<>(Point::project);
-		Constraint.Variable x = constraints.add(U8);
-		Constraint.Variable y = constraints.add(and(U8, atleast(x)));
+//		Constraint.Variable x = constraints.add(U8);
+//		Constraint.Variable y = constraints.add(and(U8, atleast(x)));
+		Constraint.Variable x = constraints.add(between(0,5));
+		Constraint.Variable y = constraints.add(between(0,5));
 		//
 		for(Point p : constraints) {
 			System.out.println(p);
