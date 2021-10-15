@@ -43,9 +43,8 @@ for(Point p : constraints) {
 ```
 
 Here, I've declared `x` and `y` explicitly to help clarify what's
-going on but, in this case at least, we don't actually need them.  
-
-Essentially, what's happening above is that we are declaring two
-variables in our constraint set and enumerating them.  We've provided
-a _project_ function which takes an `int[]` array (where `length==2`
-in this case) and constructs an instance of `Point`.
+going on but, in this case at least, we don't actually need them.
+Essentially, we've declared two variables in our constraint set which
+are constrained to be between `0` and `5` (inclusive).  We've also
+provided a _project_ function which takes an `int[]` array (where
+`length==2` in this case) and constructs an instance of `Point`.
