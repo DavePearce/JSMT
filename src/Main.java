@@ -22,7 +22,7 @@ public class Main {
 
 		public static Point project(int[] vars) {
 			return new Point(vars[0],vars[1]);
-		}
+		} 
 	}
 
 
