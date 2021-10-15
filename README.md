@@ -81,8 +81,8 @@ on our variables.
 
 ## Example 2 --- Point Projections
 
-As a simple example, let's suppose we have the following `Point`
-class:
+As our next example we're going to illustrate some more interesting
+_projections_. Suppose we have the following `Point` class:
 
 
 ```Java
@@ -99,9 +99,13 @@ public class Point {
  
   public String toString() {
     return "{x=" + x + ",y=" + y + "}";
-  }  
+  }
 }
 ```
+
+As before, let's suppose we want to enumerate all `Point` instances
+where `0 <= x <= 5` and `0 <= y <= 5`.  We can do this quite easily as
+follows:
 
 ```Java
 Constraint.Set<Point> constraints = new Constraint.Set<>(vs -> new Point(vs[0],vs[1]));
@@ -113,9 +117,10 @@ for(Point p : constraints) {
 }		
 ```
 
-We've also
-provided a _projection_ function which takes an `int[]` array (where
-`length==2` in this case) and constructs an instance of `Point`.
+The project function is given as a lambda which takes an `int[]` array
+ and constructs an instance of `Point`.  The `int[]` array is an
+ assignment of values to our declared variables.  Since we've only
+ declared two variables, we know that `length==2` in this case.
 
 ## Example 3 --- Arrays
 
