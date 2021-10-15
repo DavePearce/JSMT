@@ -80,7 +80,7 @@ public abstract class Constraint {
 		 * @param constraint
 		 * @return
 		 */
-		public Variable add(Constraint constraint) {
+		public Variable declare(Constraint constraint) {
 			int n = constraints.size();
 			constraints.add(constraint);
 			return new Variable(n);

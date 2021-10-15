@@ -34,15 +34,15 @@ and `0 <= y <= 5`.  We can do this quite easily as follows:
 
 ```Java
 Constraint.Set<Point> constraints = new Constraint.Set<>(vs -> new Point(vs[0],vs[1]));
-Constraint.Variable x = constraints.add(between(0,5));
-Constraint.Variable y = constraints.add(between(0,5));
+Constraint.Variable x = constraints.declare(between(0,5));
+Constraint.Variable y = constraints.declare(between(0,5));
 //
 for(Point p : constraints) {
    System.out.println(p);
 }		
 ```
 
-Here, I've declared `x` and `y` explicitly to help clarify what's
+Here, we've declared `x` and `y` explicitly to help clarify what's
 going on but, in this case at least, we don't actually need them.
 Essentially, we've declared two variables in our constraint set which
 are constrained to be between `0` and `5` (inclusive).  We've also
@@ -60,3 +60,16 @@ Running the above gives the following output:
 {x=5,y=4}
 {x=5,y=5}
 ```
+
+Now, suppose we want to restrict this to those `Point` instances where
+`x <= y` holds.  To do this, we can adjust the declaration of `y` as
+follows:
+
+```Java
+...
+Constraint.Variable y = constraints.declare(and(between(0, 5), atleast(x)));
+...
+```
+
+This now includes the constraint that `y` must be _at least_ as large
+as `x`.

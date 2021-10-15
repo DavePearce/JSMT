@@ -30,8 +30,8 @@ public class Main {
 		Constraint.Set<Point> constraints = new Constraint.Set<>(Point::project);
 //		Constraint.Variable x = constraints.add(U8);
 //		Constraint.Variable y = constraints.add(and(U8, atleast(x)));
-		Constraint.Variable x = constraints.add(between(0,5));
-		Constraint.Variable y = constraints.add(between(0,5));
+		Constraint.Variable x = constraints.declare(between(0,5));
+		Constraint.Variable y = constraints.declare(and(between(0, 5), atleast(x)));
 		//
 		for(Point p : constraints) {
 			System.out.println(p);
